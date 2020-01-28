@@ -21,8 +21,12 @@ terraform is a orchestration tool of deployment into the cloud and create the in
 
 ## Commands
 
-**terraform init** - gets providers so it knows how to use it.
-**terraform plan** - it plans and validates the configurations.
-**terraform apply** - creates the instance (for enter a value click type yes)
-**terraform refresh** - refreshs the state of the instance
-**terraform destroy** - destroys the 
+- **terraform init** - gets providers so it knows how to use it.
+
+- **terraform plan** - it plans and validates the configurations.
+
+- **terraform apply** - creates the instance (for enter a value click type yes)
+
+- **terraform refresh** - refreshs the state of the instance
+
+- **terraform destroy** - destroys the
