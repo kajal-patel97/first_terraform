@@ -5,5 +5,5 @@ variable "tags" {
 
 variable "ami-id" {
   type = string
-  default = "ami-0455a9b1150fc160e"
+  default = "ami-0d8e5cfe85e85b81b"
 }
