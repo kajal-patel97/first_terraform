@@ -7,7 +7,7 @@ provider "aws" {
 resource "aws_vpc" "app_vpc" {
   cidr_block = "10.0.0.0/16"
   tags = {
-    Name = var.tags
+    Name = var.app_name
   }
 }
 
@@ -15,83 +15,30 @@ resource "aws_vpc" "app_vpc" {
 resource "aws_internet_gateway" "app_gw" {
   vpc_id = aws_vpc.app_vpc.id
   tags = {
-    Name = var.tags
+    Name = var.app_name
   }
 }
 
-# Creating a Subnet
-resource "aws_subnet" "app_subnet" {
+
+
+
+# Call module to create app tier
+module "app" {
+  source = "./modules/app_tier"
   vpc_id = aws_vpc.app_vpc.id
-  cidr_block = "10.0.0.0/24"
-  availability_zone = "eu-west-1a"
-  tags = {
-    Name = var.tags
-  }
+  ig_id = aws_internet_gateway.app_gw.id
+  app_name = var.app_name
+  ami_id_app = var.ami_id_app
+  pub_ip = module.db.pub_ip
 }
 
-# Route Table
-resource "aws_route_table" "app_route" {
+
+# Call module to create db_tier
+module "db" {
+  source = "./modules/db_tier"
   vpc_id = aws_vpc.app_vpc.id
-
-  route {
-    cidr_block = "0.0.0.0/0"
-    gateway_id = aws_internet_gateway.app_gw.id
-  }
-
-  tags = {
-    Name = var.tags
-  }
-}
-
-# Route Table Association
-resource "aws_route_table_association" "app_assoc" {
-  subnet_id = aws_subnet.app_subnet.id
-  route_table_id = aws_route_table.app_route.id
-}
-
-
-# Creating a Security Group
-resource "aws_security_group" "app_security_kp" {
-  name = var.tags
-  vpc_id = aws_vpc.app_vpc.id
-
-  ingress {
-    from_port = 80
-    to_port =  80
-    protocol = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  ingress {
-    from_port = 3000
-    to_port =  3000
-    protocol = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-
-
-  tags = {
-    Name = var.tags
-    }
-}
-
-# Launch an Instance
-resource "aws_instance" "app_instance" {
-  ami = var.ami-id
-  subnet_id = aws_subnet.app_subnet.id
-  vpc_security_group_ids = [aws_security_group.app_security_kp.id]
-  instance_type = "t2.micro"
-  key_name = "kajal-eng-48-first-key"
-  associate_public_ip_address = true
-  user_data = data.template_file.app_init.rendered
-  tags = {
-    Name = var.tags
-  }
-}
-
-
-#send template sh file to instance
-data "template_file" "app_init" {
-  template = "${file("./scripts/init_script.sh.tpl")}"
+  ig_id = aws_internet_gateway.app_gw.id
+  db_name = var.db_name
+  app_sg_id = module.app.app_sg_id
+  ami_mongo_id = var.ami_mongo_id
 }
