@@ -17,3 +17,7 @@ variable "ami_id_app" {
 variable "pub_ip" {
   description = "the generated ip"
 }
+
+variable "db_instance-ip" {
+  description = "the ip of the db instance"
+}

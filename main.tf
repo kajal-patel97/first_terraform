@@ -28,6 +28,7 @@ module "app" {
   vpc_id = aws_vpc.app_vpc.id
   ig_id = aws_internet_gateway.app_gw.id
   app_name = var.app_name
+  db_instance-ip = module.db.db_instance-ip
   ami_id_app = var.ami_id_app
   pub_ip = module.db.pub_ip
 }
